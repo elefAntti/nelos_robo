@@ -1,0 +1,7 @@
+[package]
+name = "NelosRobo"
+version = "0.1.0"
+authors = ["Antti Valli <antti.valli@gmail.com>"]
+
+[dependencies]
+rppal = "0.11.1"
