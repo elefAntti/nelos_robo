@@ -91,6 +91,10 @@ impl StepMotor{
                 let sleeptime = 1000.0 / velocity.abs().min(1.0);
                 thread::sleep(Duration::from_micros(sleeptime.abs() as u64));
             }
+            
+            for pin in pins.iter_mut() {
+                set_pin(pin, false);
+            }
         }));
         Ok(())
     }
@@ -101,28 +105,104 @@ impl StepMotor{
     }
 
     fn stop(&mut self){
-        let mut lock = self.state.lock().unwrap();
-        lock.stop = true;
-        if let Some(&mut thread) = &mut self.thread {
+        {
+            let mut lock = self.state.lock().unwrap();
+            lock.stop = true;
+        }
+        if let Some(thread) = self.thread.take() {
             thread.join().unwrap();
         }
     }
 }
 
+struct OmniPlatform
+{
+    frontLeftMotor: StepMotor,
+    frontRightMotor: StepMotor,
+    rearLeftMotor: StepMotor,
+    rearRightMotor: StepMotor
+}
+
+impl OmniPlatform
+{
+    fn new( frontLeftMotor: StepMotor, frontRightMotor: StepMotor, rearLeftMotor: StepMotor, rearRightMotor: StepMotor )
+        -> OmniPlatform
+    {
+        OmniPlatform
+        {
+            frontLeftMotor: frontLeftMotor,
+            frontRightMotor: frontRightMotor,
+            rearLeftMotor: rearLeftMotor,
+            rearRightMotor: rearRightMotor
+        }
+    }
+
+    fn start(&mut self) -> Result<(), Box<dyn Error>> 
+    {
+        self.frontLeftMotor.start()?;
+        self.frontRightMotor.start()?;
+        self.rearLeftMotor.start()?;
+        self.rearRightMotor.start()
+    }
+
+    fn stop(&mut self) {
+        self.frontLeftMotor.stop();
+        self.frontRightMotor.stop();
+        self.rearLeftMotor.stop();
+        self.rearRightMotor.stop();
+    }
+
+    fn drive(&mut self, forward: f32, left: f32, turn: f32)
+    {
+        let frontLeftVel = forward + left - turn;
+        let frontRightVel = forward + left + turn;
+        let rearLeftVel = forward - left - turn;
+        let rearRightVel = forward - left + turn;
+
+        let maxVel = [frontLeftVel, frontRightVel, rearLeftVel, rearRightVel].iter()
+            .map(|x| x.abs())
+            .fold(0.0, f32::max);
+        let scale = if maxVel > 1.0 { 1.0 / maxVel } else { 1.0 };
+
+        self.frontLeftMotor.set_velocity(frontLeftVel * scale);
+        self.frontRightMotor.set_velocity(frontRightVel * scale);
+        self.rearLeftMotor.set_velocity(rearLeftVel * scale);
+        self.rearRightMotor.set_velocity(rearRightVel * scale);
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
 
-    let mut motor = StepMotor::new([19, 16, 20, 21]);
-    motor.start()?;
-    motor.set_velocity(1.0);
+    let mut front_left_motor = StepMotor::new([26, 16, 20, 21]);
+    let mut rear_left_motor = StepMotor::new([19, 13, 5, 6]);
+    let mut rear_right_motor = StepMotor::new([25, 8, 7, 12]);
+    let mut front_right_motor = StepMotor::new([11, 9, 10, 22]);
+
+    let mut robot = OmniPlatform::new(front_left_motor, front_right_motor, rear_left_motor, rear_right_motor);
+    robot.start()?;
+
+    robot.drive(1.0, 0.0, 0.0);
     thread::sleep(Duration::from_millis(2000));
-    motor.set_velocity(0.5);
+
+    robot.drive(-1.0, 0.0, 0.0);
     thread::sleep(Duration::from_millis(2000));
-    motor.set_velocity(-0.5);
+
+    robot.drive(0.0, 1.0, 0.0);
     thread::sleep(Duration::from_millis(2000));
-    motor.set_velocity(-1.0);
+
+    robot.drive(0.0, -1.0, 0.0);
     thread::sleep(Duration::from_millis(2000));
-    motor.stop();
+
+    robot.drive(0.0, 0.0, 1.0);
+    thread::sleep(Duration::from_millis(2000));  
+
+    robot.drive(0.0, 0.0, -1.0);
     thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(1.0, 0.0, 1.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.stop();
 
     Ok(())
 }
