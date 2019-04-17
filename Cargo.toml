@@ -1,5 +1,5 @@
 [package]
-name = "NelosRobo"
+name = "nelos_robo"
 version = "0.1.0"
 authors = ["Antti Valli <antti.valli@gmail.com>"]
 
