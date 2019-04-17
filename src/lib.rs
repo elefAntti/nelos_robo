@@ -1,3 +1,4 @@
+extern crate rppal;
 use std::error::Error;
 use std::fmt;
 use std::thread;
@@ -154,6 +155,12 @@ impl StepMotor{
         lock.velocity = velocity;
     }
 
+    pub fn get_pulse_count(&self) -> i32
+    {
+        let lock = self.state.lock().unwrap();
+        lock.rotated_steps
+    } 
+
     pub fn stop(&mut self){
         {
             let mut lock = self.state.lock().unwrap();
@@ -218,5 +225,15 @@ impl OmniPlatform
         self.front_right_motor.set_velocity(front_right_vel * scale);
         self.rear_left_motor.set_velocity(rear_left_vel * scale);
         self.rear_right_motor.set_velocity(rear_right_vel * scale);
+    }
+
+    pub fn get_pulse_count(&self) -> [i32;4]
+    {
+        [
+            self.front_left_motor.get_pulse_count(),
+            self.front_right_motor.get_pulse_count(),
+            self.rear_left_motor.get_pulse_count(),
+            self.rear_right_motor.get_pulse_count()
+        ]
     }
 }
