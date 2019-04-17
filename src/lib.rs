@@ -7,6 +7,8 @@ use std::sync::{Arc, Mutex};
 
 use rppal::gpio::Gpio;
 use rppal::gpio::Level;
+use rppal::gpio::Level::{High, Low};
+use rppal::gpio::Pin;
 use rppal::gpio::OutputPin;
 
 fn set_pins( pins: &mut Vec<OutputPin>, values:[Level;4])
@@ -69,24 +71,28 @@ impl StepMotor{
             thread: None
         }
     }
+
     pub fn start(&mut self) -> Result<(), Box<dyn Error>> {
         let gpio = Gpio::new()?;
-        let mut pins: Vec<OutputPin> = self.pins.iter()
-            .map(|nbr| gpio.get(*nbr).expect("Invalid pin idx").into_output())
-            .collect();
-
-        let max_vel_ramp = 0.0;
+        let mut pins = {
+            let pins: Result<Vec<OutputPin>, _> = self.pins.iter()
+                .map(|nbr| gpio.get(*nbr).map(Pin::into_output))
+                .collect();
+            pins?
+        };
+    
+        let mut max_vel_ramp;
         let c_mutex = self.state.clone();
 
         let sequence = [
-            [Level::High, Level::Low,  Level::Low,  Level::Low],
-            [Level::High, Level::High, Level::Low,  Level::Low],
-            [Level::Low,  Level::High, Level::Low,  Level::Low],
-            [Level::Low,  Level::High, Level::High, Level::Low],
-            [Level::Low,  Level::Low,  Level::High, Level::Low],
-            [Level::Low,  Level::Low,  Level::High, Level::High],
-            [Level::Low,  Level::Low,  Level::Low,  Level::High],
-            [Level::High, Level::Low,  Level::Low,  Level::High]];
+            [High, Low,  Low,  Low],
+            [High, High, Low,  Low],
+            [Low,  High, Low,  Low],
+            [Low,  High, High, Low],
+            [Low,  Low,  High, Low],
+            [Low,  Low,  High, High],
+            [Low,  Low,  Low,  High],
+            [High, Low,  Low,  High]];
 
         match self.state.lock() {
             Ok(mut state) => {
@@ -126,7 +132,7 @@ impl StepMotor{
                 }            
                 
                 if velocity == 0.0 {
-                    set_pins(&mut pins, [Level::Low, Level::Low, Level::Low, Level::Low]);
+                    set_pins(&mut pins, [Low, Low, Low, Low]);
                 } else {
                     set_pins(&mut pins, sequence[step]);
                 }
@@ -138,7 +144,7 @@ impl StepMotor{
                 velocity += clamp_float(velocity_setpoint - velocity, -max_vel_ramp * sleeptime_ms, max_vel_ramp * sleeptime_ms );
             }
             
-            set_pins(&mut pins, [Level::Low, Level::Low, Level::Low, Level::Low]);
+            set_pins(&mut pins, [Low, Low, Low, Low]);
         }));
         Ok(())
     }
