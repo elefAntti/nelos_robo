@@ -1,11 +1,4 @@
 [[package]]
-name = "NelosRobo"
-version = "0.1.0"
-dependencies = [
- "rppal 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -14,6 +7,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "libc"
 version = "0.2.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "nelos_robo"
+version = "0.1.0"
+dependencies = [
+ "rppal 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "rppal"
