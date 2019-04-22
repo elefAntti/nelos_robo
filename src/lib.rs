@@ -68,7 +68,7 @@ impl StepMotor{
                 stop: true,
                 max_velocity_ramp : 0.01
                 })),
-            pins: pins,
+            pins,
             thread: None
         }
     }
@@ -187,10 +187,10 @@ impl OmniPlatform
     {
         OmniPlatform
         {
-            front_left_motor: front_left_motor,
-            front_right_motor: front_right_motor,
-            rear_left_motor: rear_left_motor,
-            rear_right_motor: rear_right_motor
+            front_left_motor,
+            front_right_motor,
+            rear_left_motor,
+            rear_right_motor
         }
     }
 
