@@ -212,9 +212,9 @@ impl OmniPlatform
     pub fn drive(&mut self, forward: f32, left: f32, turn: f32)
     {
         let front_left_vel = forward + left - turn;
-        let front_right_vel = forward + left + turn;
+        let front_right_vel = forward - left + turn;
         let rear_left_vel = forward - left - turn;
-        let rear_right_vel = forward - left + turn;
+        let rear_right_vel = forward + left + turn;
 
         let max_vel = [front_left_vel, front_right_vel, rear_left_vel, rear_right_vel].iter().cloned()
             .map(f32::abs)
