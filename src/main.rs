@@ -19,28 +19,28 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut robot = OmniPlatform::new(front_left_motor, front_right_motor, rear_left_motor, rear_right_motor);
     robot.start()?;
 
-    // robot.drive(1.0, 0.0, 0.0);
-    // thread::sleep(Duration::from_millis(2000));
-
-    // robot.drive(-1.0, 0.0, 0.0);
-    // thread::sleep(Duration::from_millis(2000));
-
-    // robot.drive(0.0, 1.0, 0.0);
-    // thread::sleep(Duration::from_millis(2000));
-
-    // robot.drive(0.0, -1.0, 0.0);
-    // thread::sleep(Duration::from_millis(2000));
-
-    // robot.drive(0.0, 0.0, 1.0);
-    // thread::sleep(Duration::from_millis(2000));  
-
-    // robot.drive(0.0, 0.0, -1.0);
-    // thread::sleep(Duration::from_millis(2000));
-
-    // robot.drive(1.0, 0.0, 1.0);
-    // thread::sleep(Duration::from_millis(2000));
-
     robot.drive(1.0, 0.0, 0.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(-1.0, 0.0, 0.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(0.0, 1.0, 0.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(0.0, -1.0, 0.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(0.0, 0.0, 1.0);
+    thread::sleep(Duration::from_millis(2000));  
+
+    robot.drive(0.0, 0.0, -1.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(1.0, 0.0, 1.0);
+    thread::sleep(Duration::from_millis(2000));
+
+    robot.drive(0.2, 0.0, 0.1);
 
     //Wait for key
     let _ = stdin().read(&mut [0u8]).unwrap();
