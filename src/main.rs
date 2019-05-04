@@ -6,8 +6,9 @@ use std::error::Error;
 use std::io::stdin;
 use std::io::Read;
 
+use nelos_robo::OmniPlatform;
+use nelos_robo::devices::StepMotor;
 
-use nelos_robo::{OmniPlatform, StepMotor};
 
 fn main() -> Result<(), Box<dyn Error>> {
 
